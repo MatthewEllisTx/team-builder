@@ -1,5 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+
+const LabelStyled = styled.label`
+  display: flex;
+  justify-content: space-between;
+`
+
+const DivInputStyled = styled.div`
+  margin: 8px 0 8px 0;
+`
+
+const DivButtonStyled = styled.div`
+  display: flex;
+  margin: 8px 0 8px 0;
+  justify-content: flex-end;
+`
 
 const initialFormValues = {
   name: '',
@@ -10,7 +25,22 @@ const initialFormValues = {
 export default function MemberForm(props){
   const [ values, setValues ] = useState(initialFormValues);
 
+  const editMember = props.memberToEdit;
+  
+  
   const submitMember = props.submit;
+  const cancelEdit = props.cancel;
+  const saveEdit = props.save;
+  
+  useEffect(() => {
+    if(editMember.name === undefined){
+      setValues(initialFormValues);
+      return;
+    }
+    console.log(editMember);
+    setValues(editMember);
+  }, [editMember]);
+
 
   function onChange(evt){
     setValues({
@@ -21,47 +51,56 @@ export default function MemberForm(props){
 
   function onSubmit(evt){
     evt.preventDefault();
-    submitMember(values);
+    setValues(initialFormValues);
+    editMember.name === undefined? submitMember(values) : saveEdit(values);
   }
 
   return (
     <form onSubmit={onSubmit}>
-      <label>
+      {editMember.name !== undefined && <p>Editing: {editMember.name}</p>}
+      <LabelStyled>
         Name
-        <input 
-          name='name'
-          type='text'
-          value={values.name}
-          onChange={onChange}
-          placeholder='Start typing a name here...'
-          maxLength='256'
-          />
-      </label>
+        <DivInputStyled>
+          <input 
+            name='name'
+            type='text'
+            value={values.name}
+            onChange={onChange}
+            placeholder='Start typing a name here...'
+            maxLength='256'
+            />
+          </DivInputStyled>
+      </LabelStyled>
     
-      <label>
+      <LabelStyled>
         Email
-        <input 
-          name='email'
-          type='email'
-          value={values.email}
-          onChange={onChange}
-          placeholder='Start typing an email here...'
-          />
-      </label>
+        <DivInputStyled>
+          <input 
+            name='email'
+            type='email'
+            value={values.email}
+            onChange={onChange}
+            placeholder='username@email.com'
+            />
+          </DivInputStyled>
+      </LabelStyled>
       
-      <label>
+      <LabelStyled>
         Role
-        <select value={values.role} name='role' onChange={onChange}>
-          <option value=''>Select Role</option>
-          <option value='frontend_engineer'>Frontend Engineer</option>
-          <option value='backend_engineer'>Backend Engineer</option>
-          <option value='Graphic Designer'>Graphic Designer</option>
-        </select>
-      </label>
+        <DivInputStyled>
+          <select value={values.role} name='role' onChange={onChange}>
+            <option value=''>Select Role</option>
+            <option value='frontend_engineer'>Frontend Engineer</option>
+            <option value='backend_engineer'>Backend Engineer</option>
+            <option value='Graphic Designer'>Graphic Designer</option>
+          </select>
+        </DivInputStyled>
+      </LabelStyled>
 
-      <div>
-        <button type='submit' disabled={Object.entries(values).filter(value => value[1] === '').length > 0}>Submit</button>
-      </div>
+      <DivButtonStyled>
+        {editMember.name !== undefined &&<button type='button' onClick={cancelEdit}>{'Cancel'}</button>}
+        <button type='submit' disabled={Object.entries(values).filter(value => value[1] === '').length > 0}>{editMember.name === undefined? 'Submit' : 'Save'}</button>
+      </DivButtonStyled>
     </form>
   )
 }
